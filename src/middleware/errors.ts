@@ -8,26 +8,31 @@ import { Service } from 'typedi';
 @Middleware({ type: 'after' })
 export default class AppErrorHandler implements ExpressErrorMiddlewareInterface {
   error(error: unknown, request: Request, response: Response, _: NextFunction): void {
-    if (error instanceof HttpError) {
-      handleHttpError(request, response, error);
-      return;
-    }
-
-    request.logger?.error('Unexpected error occurred', error);
-    response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      status: 'error',
-      message: 'An error occurred while processing your request',
-    });
+    handleError(request, response, error);
   }
 }
 
-function handleHttpError(request: Request, response: Response, error: HttpError) {
-  request.logger?.error('HTTP Error occurred', error);
-  if (hasValidationErrors(error)) {
-    return response.status(error.httpCode).json(handleValidationErrors(error));
+export function handleError(request: Request, response: Response, error: unknown): void {
+  if (error instanceof HttpError) {
+    handleHttpError(request, response, error);
+    return;
   }
 
-  return response.status(error.httpCode).json({
+  request.logger?.error('Unexpected error occurred', error);
+  response.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+    status: 'error',
+    message: 'An error occurred while processing your request',
+  });
+}
+
+function handleHttpError(request: Request, response: Response, error: HttpError): void {
+  request.logger?.error('HTTP Error occurred', error);
+  if (hasValidationErrors(error)) {
+    response.status(error.httpCode).json(handleValidationErrors(error));
+    return;
+  }
+
+  response.status(error.httpCode).json({
     status: 'error',
     message: error.message,
   });

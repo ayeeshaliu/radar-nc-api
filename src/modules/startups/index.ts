@@ -9,7 +9,7 @@ export { default as StartupPitchDeckService } from './startup.pitchdeck.service'
 export { default as StartupRepository } from './startup.repository';
 
 // Controller export
-export { default as StartupsController } from './startups.controller';
+export { StartupsController } from './controllers/startups.controller';
 
 // DTO exports
 export * from './dto';

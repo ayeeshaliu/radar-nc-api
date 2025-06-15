@@ -57,7 +57,7 @@ export class StartupSubmissionDto {
 
   @IsNotEmpty()
   @IsEmail()
-  contactEmail: string;
+  email: string;
 
   @IsOptional()
   @IsString()

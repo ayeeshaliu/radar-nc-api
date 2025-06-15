@@ -30,7 +30,7 @@ export function startupSubmission(overrides?: Partial<StartupSubmissionDto>): St
     isStudentBuild: false,
     tags: ['AI', 'Fintech', 'B2B'],
     founderName: 'John Doe',
-    contactEmail: 'john@techstartup.com',
+    email: 'john@techstartup.com',
     logoUrl: 'https://techstartup.com/logo.png',
     linkedinUrl: 'https://linkedin.com/in/johndoe',
     twitterUrl: 'https://twitter.com/johndoe',

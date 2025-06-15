@@ -9,8 +9,7 @@ import {
 } from 'routing-controllers';
 import { Inject, Service } from 'typedi';
 
-import { requireAuthType } from '../../middleware'; // Updated import
-
+import { requireAuthType } from '../../../middleware'; // Updated import
 import {
   ContactRequestDto,
   ContactResponse,
@@ -24,15 +23,15 @@ import {
   TrackViewResponse,
   UpvoteDto,
   UpvoteResponse,
-} from './dto';
-import StartupAnalyticsService from './startup.analytics.service';
-import StartupEngagementService from './startup.engagement.service';
-import StartupPitchDeckService from './startup.pitchdeck.service';
-import StartupsService from './startups.service';
+} from '../dto';
+import StartupAnalyticsService from '../startup.analytics.service';
+import StartupEngagementService from '../startup.engagement.service';
+import StartupPitchDeckService from '../startup.pitchdeck.service';
+import StartupsService from '../startups.service';
 
 @Service()
-@JsonController()
-export default class StartupsController {
+@JsonController('/startups')
+export class StartupsController {
   constructor(
     @Inject() private startupsService: StartupsService,
     @Inject() private analyticsService: StartupAnalyticsService,
@@ -43,7 +42,7 @@ export default class StartupsController {
   /**
    * Get approved startups for public directory
    */
-  @Get('/startups')
+  @Get('/')
   async getStartups(@QueryParams() query: StartupQueryDto): Promise<StartupsResponse> {
     return this.startupsService.getPublicStartups(query);
   }
@@ -51,7 +50,7 @@ export default class StartupsController {
   /**
    * Submit a new startup for review
    */
-  @Post('/startups')
+  @Post('/')
   async submitStartup(
     @Body() submission: StartupSubmissionDto,
   ): Promise<StartupSubmissionResponse> {
@@ -61,7 +60,7 @@ export default class StartupsController {
   /**
    * Get startup by ID
    */
-  @Get('/startups/:id')
+  @Get('/:id')
   async getStartupById(@Param('id') id: string): Promise<StartupResponse> {
     return this.startupsService.getStartupById(id);
   }
@@ -69,7 +68,7 @@ export default class StartupsController {
   /**
    * Track startup view
    */
-  @Post('/startups/:id/view')
+  @Post('/:id/view')
   async trackView(
     @Param('id') id: string,
     @Body() viewData: TrackViewDto,
@@ -80,7 +79,7 @@ export default class StartupsController {
   /**
    * Upvote or remove upvote from startup
    */
-  @Post('/startups/:id/upvote')
+  @Post('/:id/upvote')
   async toggleUpvote(
     @Param('id') id: string,
     @Body() upvoteData: UpvoteDto,
@@ -91,7 +90,7 @@ export default class StartupsController {
   /**
    * Track contact request
    */
-  @Post('/startups/:id/contact')
+  @Post('/:id/contact')
   async trackContactRequest(
     @Param('id') id: string,
     @Body() contactData: ContactRequestDto,
@@ -102,7 +101,7 @@ export default class StartupsController {
   /**
    * Get pitch deck access URL
    */
-  @Get('/startups/:id/pitch-deck')
+  @Get('/:id/pitch-deck')
   @UseBefore(requireAuthType(['investor', 'founder']))
   async getPitchDeckAccess(@Param('id') id: string): Promise<PitchDeckResponse> {
     return this.pitchDeckService.getPitchDeckAccess(id);

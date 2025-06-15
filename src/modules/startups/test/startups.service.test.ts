@@ -33,7 +33,7 @@ describe(StartupsService.name, () => {
       const submission = testgen.startupSubmission({
         name: 'TechCorp',
         description: 'AI-powered fintech solution',
-        contactEmail: 'founder@techcorp.com',
+        email: 'founder@techcorp.com',
       });
       const createdStartupId = 'startup-123';
 
@@ -53,7 +53,7 @@ describe(StartupsService.name, () => {
       expect(logger.info).toHaveBeenCalledWith('Startup submitted successfully', {
         id: createdStartupId,
         name: submission.name,
-        founderEmail: submission.contactEmail,
+        founderEmail: submission.email,
       });
     });
 

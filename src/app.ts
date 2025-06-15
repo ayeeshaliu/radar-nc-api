@@ -7,6 +7,7 @@ import { rootLoggerMiddleware } from '@withmono/logger';
 
 import { AppErrorHandler, authMiddleware, healthcheckMiddleware } from './middleware';
 import { AuthController, getConfigService, StartupsController } from './modules';
+import { AdminStartupsController } from './modules/startups/controllers';
 
 const app = express();
 const configService = getConfigService();
@@ -31,7 +32,7 @@ useScopedContainer();
 useExpressServer(app, {
   routePrefix: '/v1',
   defaultErrorHandler: false,
-  controllers: [StartupsController, AuthController],
+  controllers: [StartupsController, AdminStartupsController, AuthController],
   middlewares: [AppErrorHandler],
 });
 

@@ -4,11 +4,11 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 import * as testgen from '../../../test/generator';
 import { generateMockObject } from '../../../test/util';
+import { StartupsController } from '../controllers';
 import { StartupStatus } from '../dto';
 import StartupAnalyticsService from '../startup.analytics.service';
 import StartupEngagementService from '../startup.engagement.service';
 import StartupPitchDeckService from '../startup.pitchdeck.service';
-import StartupsController from '../startups.controller';
 import StartupsService from '../startups.service';
 
 describe(StartupsController.name, () => {
@@ -84,7 +84,7 @@ describe(StartupsController.name, () => {
       const submission = testgen.startupSubmission({
         name: 'TechCorp',
         description: 'AI-powered fintech solution',
-        contactEmail: 'founder@techcorp.com',
+        email: 'founder@techcorp.com',
       });
 
       const expectedResponse = {

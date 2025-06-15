@@ -4,12 +4,11 @@ import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 
 import * as testgen from '../../../test/generator';
 import { generateMockObject } from '../../../test/util';
-import { AdminStartupsController } from '../admin.startups.controller';
+import { AdminStartupsController } from '../controllers';
 import { StartupStatus } from '../dto';
 import StartupAdminService from '../startup.admin.service';
-import StartupsController from '../startups.controller';
 
-describe(StartupsController.name, () => {
+describe(AdminStartupsController.name, () => {
   let controller: AdminStartupsController;
   let adminService: jest.Mocked<StartupAdminService>;
 

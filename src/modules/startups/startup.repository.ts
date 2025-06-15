@@ -240,7 +240,7 @@ export default class StartupRepository {
       'Student Build': submission.isStudentBuild,
       Tags: (submission.tags || []).map((x) => x.trim().toLowerCase()).join(', '),
       'Founder Name': submission.founderName,
-      'Contact Email': submission.contactEmail,
+      'Contact Email': submission.email,
       'Logo URL': submission.logoUrl,
       'LinkedIn URL': submission.linkedinUrl,
       'Twitter URL': submission.twitterUrl,

@@ -1,16 +1,18 @@
-import { Body, Get, Param, Put, QueryParams, UseBefore } from 'routing-controllers';
-import { Inject } from 'typedi';
+import { Body, Get, JsonController, Param, Put, QueryParams, UseBefore } from 'routing-controllers';
+import { Inject, Service } from 'typedi';
 
-import { requireAuthType } from '../../middleware';
-
+import { requireAuthType } from '../../../middleware';
 import {
   AdminStartupQueryDto,
   AdminStartupsResponse,
   AdminUpdateResponse,
   AdminUpdateStartupDto,
-} from './dto';
-import StartupAdminService from './startup.admin.service';
+} from '../dto';
+import StartupAdminService from '../startup.admin.service';
 
+@Service()
+@JsonController()
+@UseBefore(requireAuthType('admin'))
 export class AdminStartupsController {
   constructor(@Inject() private adminService: StartupAdminService) {}
 
@@ -18,7 +20,6 @@ export class AdminStartupsController {
    * Get all startups for admin
    */
   @Get('/admin/startups')
-  @UseBefore(requireAuthType('admin'))
   async getAdminStartups(
     @QueryParams() query: AdminStartupQueryDto,
   ): Promise<AdminStartupsResponse> {
@@ -29,7 +30,6 @@ export class AdminStartupsController {
    * Update startup status
    */
   @Put('/admin/startups/:id')
-  @UseBefore(requireAuthType('admin'))
   async updateStartupStatus(
     @Param('id') id: string,
     @Body() updateData: AdminUpdateStartupDto,

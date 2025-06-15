@@ -1,8 +1,14 @@
 import { NextFunction, Request, Response } from 'express';
 import { ForbiddenError, UnauthorizedError } from 'routing-controllers';
 
+import { MonoLogger } from '@withmono/logger';
+
 export type AuthRole = 'admin' | 'founder' | 'investor' | 'curious';
 
+/**
+ * Middleware factory to require a specific user role or roles.
+ * Usage: app.use(requireAuthType('admin')) or requireAuthType(['admin', 'founder'])
+ */
 export function requireAuthType(roleType: AuthRole | AuthRole[]) {
   return function authTypeMiddleware(req: Request, _res: Response, next: NextFunction): void {
     if (!req.auth?.isAuthenticated) {
@@ -10,45 +16,53 @@ export function requireAuthType(roleType: AuthRole | AuthRole[]) {
       return;
     }
 
-    const authData = req.auth as AuthenticatedAuthData; // Already checked isAuthenticated
-    const rolesToCheck = Array.isArray(roleType) ? roleType : [roleType];
-
-    let authorized = false;
-    for (const role of rolesToCheck) {
-      switch (role) {
-        case 'admin':
-          if (authData.isAdmin) authorized = true;
-          break;
-        case 'founder':
-          if (authData.isFounder) authorized = true;
-          break;
-        case 'investor':
-          if (authData.isInvestor) authorized = true;
-          break;
-        case 'curious': // Any authenticated user is considered 'curious'
-          if (authData.isCuriousPerson) authorized = true;
-          break;
-        default:
-          req.logger?.warn('Unknown role type specified in requireAuthType', { role });
-          break;
-      }
-      if (authorized) break;
-    }
-
-    if (authorized) {
+    const authData = req.auth;
+    const requiredRoles = Array.isArray(roleType) ? roleType : [roleType];
+    if (userHasRole(authData, requiredRoles, req.logger)) {
       next();
-    } else {
-      req.logger?.warn('Authorization failed for user', {
-        userId: authData.userId,
-        requiredRoles: rolesToCheck,
-        userRoles: authData,
-      });
-
-      next(
-        new ForbiddenError(
-          `Access denied. User does not have the required role(s): ${rolesToCheck.join(' or ')}.`,
-        ),
-      );
+      return;
     }
+
+    next(handleAuthorizationFailure(req, requiredRoles));
   };
+}
+
+/**
+ * Checks if the authenticated user has at least one of the required roles.
+ */
+function userHasRole(
+  authData: AuthenticatedAuthData,
+  requiredRoles: AuthRole[],
+  logger?: MonoLogger,
+): boolean {
+  return requiredRoles.some((role) => {
+    switch (role) {
+      case 'admin':
+        return authData.isAdmin;
+      case 'founder':
+        return authData.isFounder;
+      case 'investor':
+        return authData.isInvestor;
+      case 'curious':
+        return authData.isCuriousPerson;
+      default:
+        logger?.warn('Unknown role type specified in requireAuthType', { role });
+        return false;
+    }
+  });
+}
+
+/**
+ * Handles failed authorization attempts with logging and error response.
+ */
+function handleAuthorizationFailure(req: Request, requiredRoles: AuthRole[]) {
+  const authData = req.auth as AuthenticatedAuthData;
+  req.logger?.warn('Authorization failed for user', {
+    userId: authData.userId,
+    requiredRoles,
+    userRoles: authData,
+  });
+  return new ForbiddenError(
+    `Access denied. User does not have the required role(s): ${requiredRoles.join(' or ')}.`,
+  );
 }

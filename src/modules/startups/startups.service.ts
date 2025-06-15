@@ -35,7 +35,7 @@ export default class StartupsService {
       this.logger.info('Startup submitted successfully', {
         id: startupId,
         name: submission.name,
-        founderEmail: submission.contactEmail,
+        founderEmail: submission.email,
       });
 
       return {

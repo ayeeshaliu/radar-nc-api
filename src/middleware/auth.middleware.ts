@@ -1,49 +1,64 @@
 import { NextFunction, Request, Response } from 'express';
 
 import { diConstants } from '@withmono/di';
+import { MonoLogger } from '@withmono/logger';
 
 import { AuthService } from '../modules/auth/auth.service';
 
+import { handleError } from './errors';
+
+/**
+ * Extracts the Bearer token from the Authorization header.
+ */
+function extractBearerToken(authHeader?: string): string | null {
+  if (typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.slice(7).trim();
+    return token || null;
+  }
+  return null;
+}
+
+/**
+ * Handles authentication errors and logging.
+ */
+function handleAuthError(logger: MonoLogger, token: string, error: unknown) {
+  logger.error(
+    'Invalid token received, authentication failed.',
+    { tokenPreview: token.substring(0, 10) },
+    error,
+  );
+}
+
+/**
+ * Express middleware to authenticate requests using a Bearer token.
+ * Sets req.auth and diConstants.auth for downstream use.
+ */
 export async function authMiddleware(
   req: Request,
-  _res: Response,
+  res: Response,
   next: NextFunction,
 ): Promise<void> {
   const { logger } = req;
-  const authHeader = req.headers.authorization;
+  const token = extractBearerToken(req.headers.authorization);
 
-  // Initialize req.auth for every request to ensure it's always defined.
+  // Always initialize req.auth
   req.auth = { isAuthenticated: false };
 
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.substring(7);
-    if (token) {
+  if (token) {
+    try {
       const authService = req.di.get(AuthService);
-      try {
-        const authData = await authService.verifyToken(token);
-        req.auth = authData; // Populate req.auth with authenticated user data
-        req.di.set(diConstants.auth, authData);
-        logger.info('User authenticated via token', { userId: authData.userId });
-      } catch (error) {
-        logger.error(
-          'Invalid token received, authentication failed.',
-          {
-            tokenPreview: token.substring(0, 10),
-          },
-          error,
-        );
-
-        // If a token is provided, it MUST be valid.
-        // AuthService.verifyToken throws UnauthorizedError for invalid tokens,
-        // which will be handled by the AppErrorHandler.
-        next(error);
-        return;
-      }
-    } else {
-      logger.debug('Bearer token is empty after stripping "Bearer ".');
+      const authData = await authService.verifyToken(token);
+      req.auth = authData;
+      logger.info('User authenticated via token', { userId: authData.userId });
+    } catch (error) {
+      handleAuthError(logger, token, error);
+      handleError(req, res, error);
+      return;
     }
   } else {
-    logger.debug('No Authorization header with Bearer token found.');
+    logger.debug('No valid Bearer token found in Authorization header.');
   }
+
+  req.di.set(diConstants.auth, req.auth);
   next();
 }
