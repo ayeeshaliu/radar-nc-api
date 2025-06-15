@@ -2,12 +2,11 @@ import express from 'express';
 import helmet from 'helmet';
 import { useExpressServer } from 'routing-controllers';
 
-import { authMiddleware } from '@withmono/auth-middleware';
 import { diMiddleware, useScopedContainer } from '@withmono/di';
 import { rootLoggerMiddleware } from '@withmono/logger';
 
-import { AppErrorHandler, healthcheckMiddleware } from './middleware';
-import { getConfigService, StartupsController } from './modules';
+import { AppErrorHandler, authMiddleware, healthcheckMiddleware } from './middleware';
+import { AuthController, getConfigService, StartupsController } from './modules';
 
 const app = express();
 const configService = getConfigService();
@@ -24,7 +23,7 @@ app.use(rootLoggerMiddleware(configService.isDebugMode()));
 
 // inject the DI container and auth middleware
 app.use(diMiddleware);
-app.use(authMiddleware());
+app.use(authMiddleware);
 
 // use the scoped container for routing-controllers
 useScopedContainer();
@@ -32,7 +31,7 @@ useScopedContainer();
 useExpressServer(app, {
   routePrefix: '/v1',
   defaultErrorHandler: false,
-  controllers: [StartupsController],
+  controllers: [StartupsController, AuthController],
   middlewares: [AppErrorHandler],
 });
 
