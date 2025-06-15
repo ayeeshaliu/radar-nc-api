@@ -1,0 +1,17 @@
+version: 2
+registries:
+  npm-mono:
+    type: npm-registry
+    url: https://npm.pkg.github.com
+    token: ${{ secrets.DEP_GH_PAT }}
+
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    registries:
+      - "npm-mono"
+    open-pull-requests-limit: 0
+    schedule:
+      timezone: "Africa/Lagos"
+      interval: daily
+      time: "00:00"

@@ -1,0 +1,605 @@
+openapi: 3.0.3
+info:
+  title: Next Capital Radar API
+  description: API for the Next Capital Radar startup directory platform
+  version: 1.0.0
+  contact:
+    email: radar@nextcapital.com
+servers:
+  - url: https://api.nextcapital.com/v1
+    description: Production server
+  - url: https://staging-api.nextcapital.com/v1
+    description: Staging server
+
+paths:
+  /startups:
+    get:
+      summary: Get approved startups for public directory
+      description: Retrieve all approved startups visible in the public directory
+      tags:
+        - Startups
+      parameters:
+        - name: sector
+          in: query
+          description: Filter by startup sector
+          schema:
+            type: string
+        - name: stage
+          in: query
+          description: Filter by startup stage
+          schema:
+            type: string
+        - name: country
+          in: query
+          description: Filter by startup country
+          schema:
+            type: string
+        - name: founderGender
+          in: query
+          description: Filter by founder gender
+          schema:
+            type: string
+        - name: isStudentBuild
+          in: query
+          description: Filter by student-built startups
+          schema:
+            type: boolean
+        - name: tags
+          in: query
+          description: Filter by tags (comma-separated)
+          schema:
+            type: string
+        - name: searchQuery
+          in: query
+          description: Search query for startup name, pitch, or description
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Number of results to return
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          description: Number of results to skip
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Successfully retrieved startups
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StartupResponse'
+        '400':
+          description: Invalid query parameters
+        '500':
+          description: Internal server error
+
+    post:
+      summary: Submit a new startup
+      description: Submit a new startup for review and approval
+      tags:
+        - Startups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartupSubmission'
+      responses:
+        '201':
+          description: Startup submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionResponse'
+        '400':
+          description: Invalid submission data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Validation failed"
+                  errors:
+                    type: object
+                    additionalProperties:
+                      type: string
+        '500':
+          description: Internal server error
+
+  /startups/{id}:
+    get:
+      summary: Get startup by ID
+      description: Retrieve a specific startup by its ID
+      tags:
+        - Startups
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Startup ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully retrieved startup
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Startup'
+        '404':
+          description: Startup not found
+        '500':
+          description: Internal server error
+
+  /startups/{id}/view:
+    post:
+      summary: Track startup view
+      description: Track when a startup profile is viewed
+      tags:
+        - Analytics
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Startup ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userRole:
+                  type: string
+                  enum: [investor, founder, public]
+                timestamp:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: View tracked successfully
+        '404':
+          description: Startup not found
+        '500':
+          description: Internal server error
+
+  /startups/{id}/upvote:
+    post:
+      summary: Upvote or remove upvote from startup
+      description: Add or remove an upvote for a startup
+      tags:
+        - Engagement
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Startup ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum: [add, remove]
+                  description: Whether to add or remove the upvote
+              required:
+                - action
+      responses:
+        '200':
+          description: Upvote action completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionResponse'
+        '404':
+          description: Startup not found
+        '500':
+          description: Internal server error
+
+  /startups/{id}/contact:
+    post:
+      summary: Track contact request
+      description: Track when someone requests contact with a startup
+      tags:
+        - Analytics
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Startup ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userRole:
+                  type: string
+                  enum: [investor, founder, public]
+                timestamp:
+                  type: string
+                  format: date-time
+      responses:
+        '200':
+          description: Contact tracked successfully
+        '404':
+          description: Startup not found
+        '500':
+          description: Internal server error
+
+  /startups/{id}/pitch-deck:
+    get:
+      summary: Get pitch deck access URL
+      description: Get the URL to access a startup's pitch deck (requires proper authentication and approval)
+      tags:
+        - Pitch Decks
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Startup ID
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Pitch deck URL retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+                    description: URL to access the pitch deck
+        '401':
+          description: Unauthorized - authentication required
+        '403':
+          description: Forbidden - access not granted
+        '404':
+          description: Startup or pitch deck not found
+        '500':
+          description: Internal server error
+
+  /admin/startups:
+    get:
+      summary: Get all startups (admin only)
+      description: Retrieve all startups including pending and rejected ones
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          description: Filter by startup status
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+        - name: limit
+          in: query
+          description: Number of results to return
+          schema:
+            type: integer
+            default: 50
+        - name: offset
+          in: query
+          description: Number of results to skip
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Successfully retrieved all startups
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StartupResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - admin access required
+        '500':
+          description: Internal server error
+
+  /admin/startups/{id}:
+    put:
+      summary: Update startup status (admin only)
+      description: Update the status and other admin fields of a startup
+      tags:
+        - Admin
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Startup ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminUpdateRequest'
+      responses:
+        '200':
+          description: Startup updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionResponse'
+        '400':
+          description: Invalid update data
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - admin access required
+        '404':
+          description: Startup not found
+        '500':
+          description: Internal server error
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    StartupSubmission:
+      type: object
+      required:
+        - name
+        - pitch
+        - description
+        - sector
+        - stage
+        - country
+        - founderName
+        - founderGender
+        - email
+        - pitchDeck
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 100
+          description: Startup name
+        pitch:
+          type: string
+          minLength: 10
+          maxLength: 300
+          description: One-line pitch
+        description:
+          type: string
+          minLength: 50
+          maxLength: 2000
+          description: Detailed description
+        sector:
+          type: string
+          description: Industry sector
+        customSector:
+          type: string
+          description: Custom sector if "other" is selected
+        stage:
+          type: string
+          enum: [idea, prototype, mvp, early-revenue, growth, expansion]
+          description: Current stage of the startup
+        country:
+          type: string
+          description: Country where startup is based
+        customCountry:
+          type: string
+          description: Custom country if "other" is selected
+        founderName:
+          type: string
+          minLength: 2
+          maxLength: 100
+          description: Primary founder's name
+        founderGender:
+          type: string
+          enum: [male, female, non-binary, prefer-not-to-say, other]
+          description: Founder's gender
+        customGender:
+          type: string
+          description: Custom gender if "other" is selected
+        university:
+          type: string
+          description: University affiliation (optional)
+        isStudentBuild:
+          type: boolean
+          description: Whether this is a student-built startup
+        email:
+          type: string
+          format: email
+          description: Contact email address
+        website:
+          type: string
+          format: uri
+          description: Startup website URL (optional)
+        teamSize:
+          type: string
+          description: Current team size
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 10
+          description: Tags describing the startup
+        pitchDeck:
+          type: string
+          format: uri
+          description: URL to pitch deck (must be access-protected)
+        socialLinks:
+          type: object
+          properties:
+            twitter:
+              type: string
+              format: uri
+            linkedin:
+              type: string
+              format: uri
+            instagram:
+              type: string
+              format: uri
+        fundingGoal:
+          type: string
+          description: Funding goal or target
+        currentRevenue:
+          type: string
+          description: Current revenue status
+        customerBase:
+          type: string
+          description: Description of customer base
+        problemSolved:
+          type: string
+          description: Problem the startup solves
+        targetMarket:
+          type: string
+          description: Target market description
+
+    Startup:
+      allOf:
+        - $ref: '#/components/schemas/StartupSubmission'
+        - type: object
+          required:
+            - id
+            - status
+            - submittedDate
+          properties:
+            id:
+              type: string
+              description: Unique startup identifier
+            status:
+              type: string
+              enum: [pending, approved, rejected]
+              description: Current status
+            submittedDate:
+              type: string
+              format: date-time
+              description: When the startup was submitted
+            reviewedDate:
+              type: string
+              format: date-time
+              description: When the startup was last reviewed
+            adminNotes:
+              type: string
+              description: Admin notes about the startup
+            logo:
+              type: string
+              format: uri
+              description: Startup logo URL
+            upvotes:
+              type: integer
+              minimum: 0
+              description: Number of upvotes
+            views:
+              type: integer
+              minimum: 0
+              description: Number of profile views
+            profileViews:
+              type: integer
+              minimum: 0
+              description: Number of detailed profile views
+            contactRequests:
+              type: integer
+              minimum: 0
+              description: Number of contact requests
+            featured:
+              type: boolean
+              description: Whether the startup is featured
+            featuredDate:
+              type: string
+              format: date-time
+              description: When the startup was featured
+            communityScore:
+              type: number
+              description: Algorithm-based community engagement score
+
+    StartupResponse:
+      type: object
+      properties:
+        startups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Startup'
+        total:
+          type: integer
+          description: Total number of startups matching the query
+        featured:
+          type: array
+          items:
+            $ref: '#/components/schemas/Startup'
+          description: Featured startups
+        trending:
+          type: array
+          items:
+            $ref: '#/components/schemas/Startup'
+          description: Trending startups
+
+    SubmissionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: Whether the operation was successful
+        message:
+          type: string
+          description: Response message
+        id:
+          type: string
+          description: ID of the created/updated resource
+
+    AdminUpdateRequest:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [approved, rejected]
+          description: New status for the startup
+        adminNotes:
+          type: string
+          description: Admin notes about the decision
+        featured:
+          type: boolean
+          description: Whether to feature the startup
+
+    ValidationError:
+      type: object
+      properties:
+        field:
+          type: string
+          description: Field that failed validation
+        message:
+          type: string
+          description: Validation error message
+        code:
+          type: string
+          description: Error code
