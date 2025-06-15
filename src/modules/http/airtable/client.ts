@@ -34,14 +34,6 @@ export default class AirtableHttpClient extends BaseHttpClient {
     super(configService, logger, axiosInstance);
   }
 
-  private getPath(baseId: string, tableIdOrName: string, recordId?: string): string {
-    let path = `/${baseId}/${tableIdOrName}`;
-    if (recordId) {
-      path += `/${recordId}`;
-    }
-    return path;
-  }
-
   /**
    * Creates a new record in the specified table.
    * @param baseId The ID of the base.
@@ -178,5 +170,13 @@ export default class AirtableHttpClient extends BaseHttpClient {
       return null;
     }
     return response.data;
+  }
+
+  private getPath(baseId: string, tableIdOrName: string, recordId?: string): string {
+    let path = `/${baseId}/${tableIdOrName}`;
+    if (recordId) {
+      path += `/${recordId}`;
+    }
+    return path;
   }
 }

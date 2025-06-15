@@ -189,7 +189,7 @@ export function airtableStartupFields(
     Country: 'Nigeria',
     'Founder Gender': 'mixed',
     'Student Build': false,
-    Tags: ['AI', 'Fintech', 'B2B'],
+    Tags: ['AI', 'Fintech', 'B2B'].join(', '),
     'Founder Name': 'John Doe',
     'Contact Email': 'john@techstartup.com',
     'Logo URL': 'https://techstartup.com/logo.png',

@@ -98,7 +98,7 @@ describe(StartupRepository.name, () => {
             Stage: StartupStage.GROWTH,
             'Founder Gender': FounderGender.FEMALE,
             'Student Build': true,
-            Tags: ['EdTech', 'SaaS'],
+            Tags: ['EdTech', 'SaaS'].map((x) => x.trim().toLowerCase()).join(', '),
           }),
         }),
       );
