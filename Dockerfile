@@ -2,8 +2,8 @@
 FROM node:22 as setup
 ARG NPM_TOKEN
 WORKDIR /usr/src/app
-COPY package*.json .npmrc ./
-RUN echo "\n//npm.pkg.github.com/:_authToken=$NPM_TOKEN" >> .npmrc && npm ci && npm install -g typescript
+COPY package*.json ./
+RUN npm ci && npm install -g typescript
 COPY . .
 RUN npm run build
 
