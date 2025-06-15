@@ -42,6 +42,26 @@ export const configMapping = {
     required: true,
   },
 
+  airtableUsersTableId: {
+    env: 'AIRTABLE_USERS_TABLE_ID',
+    required: true,
+  },
+
+  jwtSecret: {
+    env: 'JWT_SECRET',
+    required: true,
+  },
+
+  jwtIssuer: {
+    env: 'JWT_ISSUER',
+    required: true,
+  },
+
+  jwtAudience: {
+    env: 'JWT_AUDIENCE',
+    required: true,
+  },
+
   // for debug mode detection: optional
   isDebugMode: {
     env: 'DEBUG',
