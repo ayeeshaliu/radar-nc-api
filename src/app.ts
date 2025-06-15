@@ -3,8 +3,7 @@ import helmet from 'helmet';
 import { useExpressServer } from 'routing-controllers';
 
 import { authMiddleware } from '@withmono/auth-middleware';
-import { diMiddleware } from '@withmono/di';
-import useScopedContainer from '@withmono/di/dist/routing-controllers';
+import { diMiddleware, useScopedContainer } from '@withmono/di';
 import { rootLoggerMiddleware } from '@withmono/logger';
 
 import { AppErrorHandler, healthcheckMiddleware } from './middleware';
