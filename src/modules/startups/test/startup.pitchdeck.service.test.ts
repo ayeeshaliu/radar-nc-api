@@ -14,20 +14,27 @@ describe(StartupPitchDeckService.name, () => {
   let service: StartupPitchDeckService;
   let startupRepository: jest.Mocked<StartupRepository>;
   let logger: MonoLogger;
+  let mockAuthData: AuthenticatedAuthData;
 
   beforeEach(() => {
     startupRepository = generateMockObject('getStartupById');
-
     logger = getMockLogger();
 
-    service = new StartupPitchDeckService(startupRepository, logger);
+    mockAuthData = {
+      userId: 'user-456',
+      isAuthenticated: true,
+      isFounder: false,
+      isAdmin: false,
+      isInvestor: false,
+      isCuriousPerson: false,
+    };
+    service = new StartupPitchDeckService(startupRepository, logger, mockAuthData);
   });
 
   describe('getPitchDeckAccess', () => {
     it('should grant pitch deck access for approved startup', async () => {
       // Arrange
       const startupId = 'startup-123';
-      const userId = 'user-456';
 
       const mockStartup = testgen.adminStartup({
         id: startupId,
@@ -39,13 +46,13 @@ describe(StartupPitchDeckService.name, () => {
       startupRepository.getStartupById.mockResolvedValue(mockStartup);
 
       // Act
-      const result = await service.getPitchDeckAccess(startupId, userId);
+      const result = await service.getPitchDeckAccess(startupId);
 
       // Assert
       expect(result.status).toBe('successful');
       expect(result.message).toBe('Pitch deck access granted');
       expect(result.data?.url).toContain('access_token');
-      expect(result.data?.url).toContain('user=user-456');
+      expect(result.data?.url).toContain(`user=${mockAuthData.userId}`); // Assert against mockAuthData.userId
       expect(result.data?.expiresAt).toBeDefined();
 
       expect(startupRepository.getStartupById).toHaveBeenCalledWith(startupId, true);
@@ -54,12 +61,12 @@ describe(StartupPitchDeckService.name, () => {
     it('should return error when startup is not found', async () => {
       // Arrange
       const startupId = 'non-existent';
-      const userId = 'user-456';
+      // const userId = 'user-456'; // userId is now sourced from mockAuthData
 
       startupRepository.getStartupById.mockResolvedValue(null);
 
       // Act
-      const result = await service.getPitchDeckAccess(startupId, userId);
+      const result = await service.getPitchDeckAccess(startupId);
 
       // Assert
       expect(result).toEqual({
@@ -73,7 +80,7 @@ describe(StartupPitchDeckService.name, () => {
     it('should return error when startup is not approved', async () => {
       // Arrange
       const startupId = 'startup-123';
-      const userId = 'user-456';
+      // const userId = 'user-456'; // userId is now sourced from mockAuthData
 
       const mockStartup = testgen.adminStartup({
         id: startupId,
@@ -84,7 +91,7 @@ describe(StartupPitchDeckService.name, () => {
       startupRepository.getStartupById.mockResolvedValue(mockStartup);
 
       // Act
-      const result = await service.getPitchDeckAccess(startupId, userId);
+      const result = await service.getPitchDeckAccess(startupId);
 
       // Assert
       expect(result).toEqual({
@@ -98,7 +105,7 @@ describe(StartupPitchDeckService.name, () => {
     it('should return error when startup has no pitch deck', async () => {
       // Arrange
       const startupId = 'startup-123';
-      const userId = 'user-456';
+      // const userId = 'user-456'; // userId is now sourced from mockAuthData
 
       const mockStartup = testgen.adminStartup({
         id: startupId,
@@ -109,7 +116,7 @@ describe(StartupPitchDeckService.name, () => {
       startupRepository.getStartupById.mockResolvedValue(mockStartup);
 
       // Act
-      const result = await service.getPitchDeckAccess(startupId, userId);
+      const result = await service.getPitchDeckAccess(startupId);
 
       // Assert
       expect(result).toEqual({
@@ -123,13 +130,14 @@ describe(StartupPitchDeckService.name, () => {
     it('should handle repository errors during pitch deck access', async () => {
       // Arrange
       const startupId = 'startup-123';
-      const userId = 'user-456';
+      // const userId = 'user-456'; // userId is now sourced from mockAuthData
       const error = new Error('Database connection failed');
 
       startupRepository.getStartupById.mockRejectedValue(error);
 
       // Act & Assert
-      await expect(service.getPitchDeckAccess(startupId, userId)).rejects.toThrow(
+      // Service method getPitchDeckAccess takes only startupId
+      await expect(service.getPitchDeckAccess(startupId)).rejects.toThrow(
         'Database connection failed',
       );
 
@@ -139,7 +147,7 @@ describe(StartupPitchDeckService.name, () => {
     it('should generate secure URLs with proper expiration', async () => {
       // Arrange
       const startupId = 'startup-123';
-      const userId = 'user-456';
+      // const userId = 'user-456'; // userId is now sourced from mockAuthData
 
       const mockStartup = testgen.adminStartup({
         id: startupId,
@@ -151,12 +159,12 @@ describe(StartupPitchDeckService.name, () => {
       startupRepository.getStartupById.mockResolvedValue(mockStartup);
 
       // Act
-      const result = await service.getPitchDeckAccess(startupId, userId);
+      const result = await service.getPitchDeckAccess(startupId);
 
       // Assert
       expect(result.status).toBe('successful');
       expect(result.data?.url).toContain('access_token');
-      expect(result.data?.url).toContain(userId);
+      expect(result.data?.url).toContain(mockAuthData.userId); // Assert against mockAuthData.userId
 
       // Check that expiration is set to future time (24 hours from now)
       const expirationTime = new Date(result.data!.expiresAt);

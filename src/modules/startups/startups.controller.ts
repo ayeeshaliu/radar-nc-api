@@ -4,19 +4,14 @@ import {
   JsonController,
   Param,
   Post,
-  Put,
   QueryParams,
   UseBefore,
 } from 'routing-controllers';
 import { Inject, Service } from 'typedi';
 
-import { requireAuthType } from '@withmono/auth-middleware';
+import { requireAuthType } from '../../middleware'; // Updated import
 
 import {
-  AdminStartupQueryDto,
-  AdminStartupsResponse,
-  AdminUpdateResponse,
-  AdminUpdateStartupDto,
   ContactRequestDto,
   ContactResponse,
   PitchDeckResponse,
@@ -30,7 +25,6 @@ import {
   UpvoteDto,
   UpvoteResponse,
 } from './dto';
-import StartupAdminService from './startup.admin.service';
 import StartupAnalyticsService from './startup.analytics.service';
 import StartupEngagementService from './startup.engagement.service';
 import StartupPitchDeckService from './startup.pitchdeck.service';
@@ -41,7 +35,6 @@ import StartupsService from './startups.service';
 export default class StartupsController {
   constructor(
     @Inject() private startupsService: StartupsService,
-    @Inject() private adminService: StartupAdminService,
     @Inject() private analyticsService: StartupAnalyticsService,
     @Inject() private engagementService: StartupEngagementService,
     @Inject() private pitchDeckService: StartupPitchDeckService,
@@ -107,37 +100,11 @@ export default class StartupsController {
   }
 
   /**
-   * Get pitch deck access URL (requires authentication)
+   * Get pitch deck access URL
    */
   @Get('/startups/:id/pitch-deck')
-  @UseBefore(requireAuthType('partner'))
+  @UseBefore(requireAuthType(['investor', 'founder']))
   async getPitchDeckAccess(@Param('id') id: string): Promise<PitchDeckResponse> {
-    // Extract userId from the authenticated request
-    // For partner auth, we can use the userId from the auth data
-    const userId = 'authenticated-user-id'; // This should come from auth middleware
-    return this.pitchDeckService.getPitchDeckAccess(id, userId);
-  }
-
-  /**
-   * Get all startups for admin (requires internal authentication)
-   */
-  @Get('/admin/startups')
-  @UseBefore(requireAuthType('internal'))
-  async getAdminStartups(
-    @QueryParams() query: AdminStartupQueryDto,
-  ): Promise<AdminStartupsResponse> {
-    return this.adminService.getAdminStartups(query);
-  }
-
-  /**
-   * Update startup status (internal only)
-   */
-  @Put('/admin/startups/:id')
-  @UseBefore(requireAuthType('internal'))
-  async updateStartupStatus(
-    @Param('id') id: string,
-    @Body() updateData: AdminUpdateStartupDto,
-  ): Promise<AdminUpdateResponse> {
-    return this.adminService.updateStartup(id, updateData);
+    return this.pitchDeckService.getPitchDeckAccess(id);
   }
 }

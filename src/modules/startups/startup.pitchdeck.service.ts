@@ -9,16 +9,18 @@ import StartupRepository from './startup.repository';
 @Service()
 export default class StartupPitchDeckService {
   constructor(
-    @Inject() private startupRepository: StartupRepository,
-    @Inject(diConstants.logger) private logger: MonoLogger,
+    @Inject() private readonly startupRepository: StartupRepository,
+    @Inject(diConstants.logger) private readonly logger: MonoLogger,
+    @Inject(diConstants.auth) private readonly authData: AuthenticatedAuthData,
   ) {}
 
   /**
    * Get pitch deck access URL for a startup
    * This requires proper authentication and authorization
    */
-  async getPitchDeckAccess(startupId: string, userId: string): Promise<PitchDeckResponse> {
-    this.logger.info('Requesting pitch deck access', { startupId, userId });
+  async getPitchDeckAccess(startupId: string): Promise<PitchDeckResponse> {
+    const { userId } = this.authData;
+    this.logger.info('Requesting pitch deck access', { startupId });
 
     try {
       // Get startup with admin details to access pitch deck URL
