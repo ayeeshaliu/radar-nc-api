@@ -3,6 +3,7 @@ FROM node:22 as setup
 ARG NPM_TOKEN
 WORKDIR /usr/src/app
 COPY package*.json ./
+COPY vendor ./vendor
 RUN npm ci && npm install -g typescript
 COPY . .
 RUN npm run build
