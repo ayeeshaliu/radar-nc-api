@@ -1,8 +1,5 @@
 import { ObjectId } from 'mongodb';
 
-import { MonoModelsTypes } from '@withmono/models';
-import { IDocument } from '@withmono/models/lib/mixins';
-
 import {
   AdminStartupDto,
   AdminStartupQueryDto,
@@ -19,34 +16,6 @@ import {
   UpvoteDto,
 } from '../modules';
 import type { AirtableRecord } from '../modules/http/airtable';
-
-export function app(overrides?: Partial<MonoModelsTypes.IApp>): MonoModelsTypes.IApp & IDocument {
-  return {
-    _id: new ObjectId(),
-    live: true,
-    name: 'Test',
-    displayName: 'Test',
-    testSecKey: 'test_xxx',
-    liveSecKey: 'live_xxx',
-    business: '',
-    created_at: new Date(),
-    updated_at: new Date(),
-    ...overrides,
-  } as MonoModelsTypes.IApp & IDocument;
-}
-
-export function business(
-  overrides?: Partial<MonoModelsTypes.IBusiness>,
-): MonoModelsTypes.IBusiness & IDocument {
-  return {
-    _id: new ObjectId(),
-    owner: 'ownerId',
-    status: 'active',
-    created_at: new Date(),
-    updated_at: new Date(),
-    ...overrides,
-  } as MonoModelsTypes.IBusiness & IDocument;
-}
 
 export function startupSubmission(overrides?: Partial<StartupSubmissionDto>): StartupSubmissionDto {
   return {
