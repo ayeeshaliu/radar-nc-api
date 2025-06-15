@@ -1,3 +1,4 @@
+import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import { useExpressServer } from 'routing-controllers';
@@ -15,6 +16,17 @@ const configService = getConfigService();
 // add middleware
 app.use(helmet());
 app.use(express.json());
+app.use(
+  cors({
+    origin:
+      configService
+        .get('corsOrigins')
+        ?.split(',')
+        .map((x) => x.trim()) || '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  }),
+);
 
 // add this before the logger to avoid unnecessary healthcheck
 // request logs

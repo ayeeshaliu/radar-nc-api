@@ -62,6 +62,11 @@ export const configMapping = {
     required: true,
   },
 
+  corsOrigins: {
+    env: 'CORS_ORIGINS',
+    required: false,
+  },
+
   // for debug mode detection: optional
   isDebugMode: {
     env: 'DEBUG',
