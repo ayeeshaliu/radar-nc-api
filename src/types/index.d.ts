@@ -14,13 +14,15 @@ declare global {
   type AuthData = UnauthenticatedAuthData | AuthenticatedAuthData;
 
   interface UnauthenticatedAuthData {
-    authType: 'unauthenticated';
     isAuthenticated: false;
   }
 
   interface AuthenticatedAuthData {
-    authType: 'user' | 'admin';
     isAuthenticated: true;
     userId: string;
+    isFounder: boolean;
+    isAdmin: boolean;
+    isInvestor: boolean;
+    isCuriousPerson: boolean;
   }
 }
