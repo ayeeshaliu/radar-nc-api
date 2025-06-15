@@ -10,6 +10,7 @@ export default class AppErrorHandler implements ExpressErrorMiddlewareInterface 
   error(error: unknown, request: Request, response: Response, _: NextFunction): void {
     if (error instanceof HttpError) {
       handleHttpError(request, response, error);
+      return;
     }
 
     request.logger?.error('Unexpected error occurred', error);
