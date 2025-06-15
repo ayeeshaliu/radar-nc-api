@@ -35,10 +35,13 @@ function userHasRole(
   requiredRoles: AuthRole[],
   logger?: MonoLogger,
 ): boolean {
+  if (authData.isAdmin) {
+    // Admins have access to everything, no need to check further
+    return true;
+  }
+
   return requiredRoles.some((role) => {
     switch (role) {
-      case 'admin':
-        return authData.isAdmin;
       case 'founder':
         return authData.isFounder;
       case 'investor':

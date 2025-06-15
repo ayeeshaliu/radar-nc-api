@@ -5,7 +5,7 @@ import { diConstants } from '@withmono/di';
 import { MonoLogger } from '@withmono/logger';
 
 import { PasswordAuthService } from './password-auth.service';
-import { LoginResponse } from './types';
+import { JwtPayload, LoginResponse } from './types';
 import { generateJwtToken, getJwtPayload, validateJwtPayload, validateJwtSignature } from './util';
 
 @Service()
@@ -64,16 +64,18 @@ export class AuthService {
    */
   async verifyToken(token: string): Promise<AuthenticatedAuthData> {
     try {
-      const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString());
+      const payload = JSON.parse(
+        Buffer.from(token.split('.')[1], 'base64url').toString(),
+      ) as JwtPayload;
       if (validateJwtPayload(payload) && validateJwtSignature(token)) {
-        this.logger.info('Token verified successfully', { userId: payload.userId });
+        this.logger.info('Token verified successfully', { userId: payload.sub });
         return {
           isAuthenticated: true,
-          userId: payload.userId,
-          isFounder: payload.isFounder,
-          isAdmin: payload.isAdmin,
-          isInvestor: payload.isInvestor,
-          isCuriousPerson: payload.isCuriousPerson,
+          userId: payload.sub,
+          isFounder: payload.roles.founder,
+          isAdmin: payload.roles.admin,
+          isInvestor: payload.roles.investor,
+          isCuriousPerson: payload.roles.curious,
         };
       }
 

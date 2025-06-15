@@ -74,10 +74,10 @@ export function validateJwtPayload(payload: JwtPayload): boolean {
 
 export function validateJwtSignature(jwt: string): boolean {
   const [header, payload, signature] = jwt.split('.');
-  const secret = generateJwtSecret(JSON.parse(payload));
+  const secret = generateJwtSecret(JSON.parse(Buffer.from(payload, 'base64url').toString()));
 
   const expectedSignature = createHmac('sha256', secret)
     .update(`${header}.${payload}`)
-    .digest('base64');
+    .digest('base64url');
   return signature === expectedSignature;
 }
