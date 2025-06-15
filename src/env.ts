@@ -1,6 +1,6 @@
 import * as process from 'node:process';
 
-import { validateEnvVars } from './modules/configuration';
+import { validateEnvVars } from './modules';
 import { setDefaultEnvVar } from './modules/configuration/util';
 
 // Set all safe public environment variables here
