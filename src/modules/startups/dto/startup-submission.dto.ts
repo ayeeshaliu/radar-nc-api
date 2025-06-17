@@ -19,7 +19,7 @@ export class StartupSubmissionDto {
   @IsString()
   description: string;
 
-  @IsNotEmpty()
+  @IsOptional()
   @IsUrl()
   website: string;
 
