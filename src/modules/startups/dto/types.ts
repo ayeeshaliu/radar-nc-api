@@ -55,6 +55,7 @@ export interface AirtableStartupFields {
   Name: string;
   Description: string;
   Website: string;
+  Pitch: string;
   'Pitch Deck': string;
   Sector: string;
   Stage: string;

@@ -24,6 +24,9 @@ export class StartupSubmissionDto {
   website: string;
 
   @IsNotEmpty()
+  pitch: string;
+
+  @IsNotEmpty()
   @IsUrl()
   pitchDeck: string;
 

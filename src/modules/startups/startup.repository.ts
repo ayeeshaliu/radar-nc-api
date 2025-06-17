@@ -232,6 +232,7 @@ export default class StartupRepository {
       Name: submission.name,
       Description: submission.description,
       Website: submission.website,
+      Pitch: submission.pitch,
       'Pitch Deck': submission.pitchDeck,
       Sector: submission.sector,
       Stage: submission.stage,
