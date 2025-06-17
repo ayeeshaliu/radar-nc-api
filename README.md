@@ -58,4 +58,4 @@ For support or questions, email [radar@nextcapital.com](mailto:radar@nextcapital
 
 ---
 
-_See `.openapi.yaml` for the full API specification._
+_See `.openapi.yaml` for the full API specification._ 
