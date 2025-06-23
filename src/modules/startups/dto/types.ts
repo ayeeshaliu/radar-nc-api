@@ -62,7 +62,7 @@ export interface AirtableStartupFields {
   Country: string;
   'Founder Gender': string;
   'Student Build': boolean;
-  Tags: string;
+  Tags?: string;
   'Founder Name': string;
   'Contact Email': string;
   'Logo URL'?: string;

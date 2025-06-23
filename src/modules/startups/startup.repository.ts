@@ -265,7 +265,7 @@ export default class StartupRepository {
       country: fields.Country,
       founderGender: fields['Founder Gender'] as FounderGender,
       isStudentBuild: fields['Student Build'],
-      tags: fields.Tags.split(',').map((x) => x.trim()) || [],
+      tags: fields.Tags?.split(',').map((x) => x.trim()) || [],
       founderName: fields['Founder Name'],
       logoUrl: fields['Logo URL'],
       linkedinUrl: fields['LinkedIn URL'],
