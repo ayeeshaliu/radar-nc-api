@@ -33,7 +33,7 @@ export interface StartupDto {
   founderGender: FounderGender;
   isStudentBuild: boolean;
   tags: string[];
-  founderName: string;
+  founderName?: string;
   logoUrl?: string;
   linkedinUrl?: string;
   twitterUrl?: string;
@@ -44,7 +44,7 @@ export interface StartupDto {
 }
 
 export interface AdminStartupDto extends StartupDto {
-  contactEmail: string;
+  contactEmail?: string;
   pitchDeck: string;
   adminNotes?: string;
   updatedAt: string;
@@ -63,8 +63,8 @@ export interface AirtableStartupFields {
   'Founder Gender': string;
   'Student Build': boolean;
   Tags?: string;
-  'Founder Name': string;
-  'Contact Email': string;
+  'Founder Name'?: string;
+  'Contact Email'?: string;
   'Logo URL'?: string;
   'LinkedIn URL'?: string;
   'Twitter URL'?: string;
