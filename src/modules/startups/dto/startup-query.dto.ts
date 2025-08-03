@@ -1,6 +1,6 @@
 import { IsBoolean, IsEnum, IsInt, IsOptional, IsString, Min } from 'class-validator';
 
-import { FounderGender, StartupStage } from './types';
+import { FounderGender, FundingStatus, StartupStage } from './types';
 
 export class StartupQueryDto {
   @IsOptional()
@@ -18,6 +18,10 @@ export class StartupQueryDto {
   @IsOptional()
   @IsEnum(FounderGender)
   founderGender?: FounderGender;
+
+  @IsOptional()
+  @IsEnum(FundingStatus)
+  fundingStatus?: FundingStatus;
 
   @IsOptional()
   @IsBoolean()

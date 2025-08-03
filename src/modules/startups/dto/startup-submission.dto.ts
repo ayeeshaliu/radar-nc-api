@@ -8,7 +8,7 @@ import {
   IsUrl,
 } from 'class-validator';
 
-import { FounderGender, StartupStage } from './types';
+import { FounderGender, FundingStatus, StartupStage } from './types';
 
 export class StartupSubmissionDto {
   @IsNotEmpty()
@@ -45,6 +45,19 @@ export class StartupSubmissionDto {
   @IsNotEmpty()
   @IsEnum(FounderGender)
   founderGender: FounderGender;
+
+  @IsOptional()
+  @IsEnum(FundingStatus)
+  fundingStatus?: FundingStatus;
+
+  @IsOptional()
+  @IsUrl()
+  appUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  traction?: string;
 
   @IsNotEmpty()
   @IsBoolean()

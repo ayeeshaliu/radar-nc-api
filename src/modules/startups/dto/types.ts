@@ -21,6 +21,14 @@ export enum FounderGender {
   PREFER_NOT_TO_SAY = 'prefer-not-to-say',
 }
 
+export enum FundingStatus {
+  NO_FUNDING = 'No Funding',
+  GRANTS = 'Grants',
+  ANGEL_INVESTMENT = 'Angel Investment',
+  VENTURE_CAPITAL = 'Venture Capital',
+  OTHERS = 'Others',
+}
+
 // Base interfaces
 export interface StartupDto {
   id: string;
@@ -33,8 +41,11 @@ export interface StartupDto {
   founderGender: FounderGender;
   isStudentBuild: boolean;
   tags: string[];
+  fundingStatus?: FundingStatus;
+  traction?: string;
   founderName?: string;
   logoUrl?: string;
+  appUrl?: string;
   linkedinUrl?: string;
   twitterUrl?: string;
   viewCount: number;
@@ -66,6 +77,9 @@ export interface AirtableStartupFields {
   'Founder Name'?: string;
   'Contact Email'?: string;
   'Logo URL'?: string;
+  'App URL'?: string;
+  Traction?: string;
+  'Funding Status'?: string;
   'LinkedIn URL'?: string;
   'Twitter URL'?: string;
   Status: string;

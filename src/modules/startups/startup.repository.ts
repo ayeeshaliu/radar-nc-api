@@ -17,6 +17,7 @@ import {
   AdminStartupQueryDto,
   AirtableStartupFields,
   FounderGender,
+  FundingStatus,
   StartupDto,
   StartupQueryDto,
   StartupStage,
@@ -239,6 +240,9 @@ export default class StartupRepository {
       Country: submission.country,
       'Founder Gender': submission.founderGender,
       'Student Build': submission.isStudentBuild,
+      'Funding Status': submission.fundingStatus,
+      'App URL': submission.appUrl,
+      Traction: submission.traction,
       Tags: (submission.tags || []).map((x) => x.trim().toLowerCase()).join(', '),
       'Founder Name': submission.founderName,
       'Contact Email': submission.email,
@@ -268,6 +272,9 @@ export default class StartupRepository {
       tags: fields.Tags?.split(',').map((x) => x.trim()) || [],
       founderName: fields['Founder Name'],
       logoUrl: fields['Logo URL'],
+      appUrl: fields['App URL'],
+      fundingStatus: fields['Funding Status'] as FundingStatus,
+      traction: fields.Traction,
       linkedinUrl: fields['LinkedIn URL'],
       twitterUrl: fields['Twitter URL'],
       viewCount: fields['View Count'] || 0,
@@ -317,6 +324,10 @@ export default class StartupRepository {
 
     if (query.tags) {
       filters.push(`FIND("${query.tags}", ARRAYJOIN({Tags}, ",")) > 0`);
+    }
+
+    if (query.fundingStatus) {
+      filters.push(`{Funding Status} = "${query.fundingStatus}"`);
     }
 
     if (query.searchQuery) {
